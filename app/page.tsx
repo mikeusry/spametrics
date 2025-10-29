@@ -1,65 +1,240 @@
-import Image from "next/image";
+import { KPICard } from '@/components/dashboard/kpi-card';
+import { RevenueChart } from '@/components/dashboard/revenue-chart';
+import { CumulativeStoreChart } from '@/components/dashboard/cumulative-store-chart';
+import {
+  getCurrentMTDSummary,
+  getCurrentStorePerformance,
+  getCurrentRepPerformance,
+  getDailyRevenueTrend,
+  getCumulativeStoreRevenue,
+  getNGARevenue,
+  formatCurrency,
+  formatPercent,
+} from '@/lib/api';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Metadata } from 'next';
 
-export default function Home() {
+export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Dashboard | Spametrics',
+  description: 'Georgia Spa Company Sales Dashboard',
+};
+
+export default async function DashboardPage() {
+  // Fetch all data in parallel
+  const [summary, stores, reps, dailyTrend, cumulativeStoreData, ngaRevenue] = await Promise.all([
+    getCurrentMTDSummary(),
+    getCurrentStorePerformance(),
+    getCurrentRepPerformance(),
+    getDailyRevenueTrend(),
+    getCumulativeStoreRevenue(),
+    getNGARevenue(),
+  ]);
+
+  // Calculate YoY change
+  const yoyChange = summary?.ly_mtd_revenue
+    ? ((summary.mtd_revenue! - summary.ly_mtd_revenue) / summary.ly_mtd_revenue) * 100
+    : 0;
+
+  const yoyTrend = yoyChange > 0 ? 'up' : yoyChange < 0 ? 'down' : 'neutral';
+
+  // Calculate month completion percentage
+  const today = new Date();
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const totalDaysInMonth = lastDay.getDate();
+  const daysPassed = today.getDate();
+  const monthCompletion = (daysPassed / totalDaysInMonth) * 100;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div>
+      {/* Page Header */}
+      <div className="bg-white border-b border-gray-200 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-sm text-gray-600 mt-1">Overview of company performance</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-medium text-gray-900">
+              {new Date().toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Month {monthCompletion.toFixed(1)}% Complete • MTD Performance
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </div>
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-3">
+          <KPICard
+            title="MTD Revenue"
+            value={formatCurrency(summary?.mtd_revenue)}
+            subtitle={`Goal: ${formatCurrency(summary?.month_goal)}`}
+          />
+          <KPICard
+            title="% to Goal"
+            value={formatPercent(summary?.percent_to_goal)}
+            change={summary?.percent_to_goal ? Math.round(summary.percent_to_goal - 100) : 0}
+            trend={
+              summary && summary.percent_to_goal
+                ? summary.percent_to_goal >= 100
+                  ? 'up'
+                  : 'down'
+                : 'neutral'
+            }
+            changeLabel="vs. 100% target"
+          />
+          <KPICard
+            title="New Store Revenue"
+            value={formatCurrency(ngaRevenue)}
+            subtitle="Oconee + Blue Ridge + Blairsville"
+          />
         </div>
-      </main>
+
+        {/* Revenue Trend Chart */}
+        {dailyTrend.length > 0 && (
+          <div className="mb-8">
+            <RevenueChart data={dailyTrend} />
+          </div>
+        )}
+
+        {/* Cumulative Store Revenue Chart */}
+        {cumulativeStoreData.length > 0 && (
+          <div className="mb-8">
+            <CumulativeStoreChart data={cumulativeStoreData} />
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          {/* Store Performance Table */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Store Performance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Store</TableHead>
+                    <TableHead className="text-right text-gray-500">Goal</TableHead>
+                    <TableHead className="text-right">MTD Revenue</TableHead>
+                    <TableHead className="text-right">% to Goal</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {stores.slice(0, 10).map((store) => (
+                    <TableRow key={store.store_name}>
+                      <TableCell className="font-medium">
+                        {store.store_name}
+                        {store.region && (
+                          <Badge
+                            variant="outline"
+                            className={`ml-2 text-xs ${
+                              store.region === 'East' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                              store.region === 'West' ? 'bg-green-50 text-green-700 border-green-200' :
+                              store.region === 'North' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                              'bg-gray-50 text-gray-700 border-gray-200'
+                            }`}
+                          >
+                            {store.region}
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-gray-500">
+                        {formatCurrency(store.store_goal)}
+                      </TableCell>
+                      <TableCell className="text-right font-mono">
+                        {formatCurrency(store.mtd_revenue)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <span
+                          className={
+                            store.percent_to_goal && store.percent_to_goal >= 100
+                              ? 'text-green-600 font-semibold'
+                              : 'text-gray-900'
+                          }
+                        >
+                          {formatPercent(store.percent_to_goal)}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          {/* Sales Rep Leaderboard */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Sales Rep Leaderboard</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Rank</TableHead>
+                    <TableHead>Rep</TableHead>
+                    <TableHead className="text-right">MTD Revenue</TableHead>
+                    <TableHead className="text-right">% to Goal</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {reps.slice(0, 10).map((rep, index) => (
+                    <TableRow key={rep.full_name}>
+                      <TableCell>
+                        <div
+                          className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                            index === 0
+                              ? 'bg-yellow-100 text-yellow-700 font-bold'
+                              : index === 1
+                              ? 'bg-gray-100 text-gray-700 font-bold'
+                              : index === 2
+                              ? 'bg-orange-100 text-orange-700 font-bold'
+                              : 'bg-blue-50 text-blue-600'
+                          }`}
+                        >
+                          {index + 1}
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium">{rep.full_name}</TableCell>
+                      <TableCell className="text-right font-mono">
+                        {formatCurrency(rep.mtd_revenue)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <span
+                          className={
+                            rep.percent_to_goal && rep.percent_to_goal >= 100
+                              ? 'text-green-600 font-semibold'
+                              : 'text-gray-900'
+                          }
+                        >
+                          {formatPercent(rep.percent_to_goal)}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
     </div>
   );
 }
