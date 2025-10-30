@@ -411,14 +411,13 @@ export default async function RepDetailPage({ params }: PageProps) {
                     Primary Activity
                   </div>
                   <div className="text-lg font-bold">
-                    {activitySummary?.total_calls >= (activitySummary?.total_emails || 0) &&
-                     activitySummary?.total_calls >= (activitySummary?.total_meetings || 0)
-                      ? `Calls (${activitySummary?.total_calls})`
-                      : activitySummary?.total_emails >= (activitySummary?.total_meetings || 0)
-                      ? `Emails (${activitySummary?.total_emails})`
-                      : `Meetings (${activitySummary?.total_meetings})`}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
+                    {(activitySummary?.total_calls || 0) >= (activitySummary?.total_emails || 0) &&
+                     (activitySummary?.total_calls || 0) >= (activitySummary?.total_meetings || 0)
+                      ? `Calls (${activitySummary?.total_calls || 0})`
+                      : (activitySummary?.total_emails || 0) >= (activitySummary?.total_meetings || 0)
+                      ? `Emails (${activitySummary?.total_emails || 0})`
+                      : `Meetings (${activitySummary?.total_meetings || 0})`}
+                  </div>                  <div className="text-sm text-muted-foreground">
                     Most frequent type
                   </div>
                 </div>
