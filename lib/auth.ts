@@ -11,6 +11,7 @@ const getSecretKey = () => new TextEncoder().encode(SECRET_KEY);
 export interface SessionPayload {
   authenticated: boolean;
   expiresAt: number;
+  [key: string]: unknown;
 }
 
 /**
