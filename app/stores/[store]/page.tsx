@@ -1,5 +1,6 @@
-import { formatCurrency, formatPercent } from '@/lib/api';
+import { formatCurrency, formatPercent, getStoreDayOfWeekSales } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DayOfWeekChart } from '@/components/dashboard/day-of-week-chart';
 import { createClient } from '@supabase/supabase-js';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -68,6 +69,7 @@ export default async function StorePage({ params }: { params: Promise<{ store: s
       mtd_revenue,
       goal_revenue,
       ly_revenue,
+      store_id,
       stores!inner(store_name, region)
     `)
     .eq('stores.store_name', storeName)
@@ -78,6 +80,10 @@ export default async function StorePage({ params }: { params: Promise<{ store: s
   const percentToGoal = latestData?.goal_revenue
     ? (latestData.mtd_revenue / latestData.goal_revenue) * 100
     : 0;
+
+  // Get day of week sales data
+  const storeId = latestData?.store_id;
+  const dayOfWeekData = storeId ? await getStoreDayOfWeekSales(storeId) : [];
 
   return (
     <div className="min-h-screen">
@@ -133,6 +139,17 @@ export default async function StorePage({ params }: { params: Promise<{ store: s
             </CardContent>
           </Card>
         </div>
+
+        {/* Day of Week Sales Chart */}
+        {dayOfWeekData.length > 0 && (
+          <div className="mb-8">
+            <DayOfWeekChart
+              data={dayOfWeekData}
+              title={`${storeName} - Sales by Day of Week`}
+              description="Average daily sales for each day of the week (current month)"
+            />
+          </div>
+        )}
 
         {/* Daily Performance Table */}
         <Card>

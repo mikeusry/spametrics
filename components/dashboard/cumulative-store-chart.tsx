@@ -1,6 +1,7 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   LineChart,
   Line,
@@ -32,6 +33,8 @@ const STORE_COLORS: { [key: string]: string } = {
 };
 
 export function CumulativeStoreChart({ data }: CumulativeStoreChartProps) {
+  const [hiddenStores, setHiddenStores] = useState<Set<string>>(new Set());
+
   if (!data || data.length === 0) {
     return null;
   }
@@ -54,10 +57,29 @@ export function CumulativeStoreChart({ data }: CumulativeStoreChartProps) {
     }).format(value);
   };
 
+  // Toggle store visibility
+  const handleLegendClick = (dataKey: string) => {
+    setHiddenStores((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(dataKey)) {
+        newSet.delete(dataKey);
+      } else {
+        newSet.add(dataKey);
+      }
+      return newSet;
+    });
+  };
+
+  // Count visible stores
+  const visibleCount = storeNames.length - hiddenStores.size;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Cumulative Store Revenue - MTD Trend</CardTitle>
+        <CardDescription>
+          Click on store names in the legend to show/hide lines ({visibleCount} of {storeNames.length} visible)
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={400}>
@@ -76,7 +98,10 @@ export function CumulativeStoreChart({ data }: CumulativeStoreChartProps) {
               formatter={(value: number) => formatCurrency(value)}
               contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #ccc' }}
             />
-            <Legend />
+            <Legend
+              onClick={(e) => handleLegendClick(e.dataKey as string)}
+              wrapperStyle={{ cursor: 'pointer' }}
+            />
             {storeNames.map((storeName) => (
               <Line
                 key={storeName}
@@ -87,6 +112,8 @@ export function CumulativeStoreChart({ data }: CumulativeStoreChartProps) {
                 strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 4 }}
+                hide={hiddenStores.has(storeName)}
+                strokeOpacity={hiddenStores.has(storeName) ? 0.2 : 1}
               />
             ))}
           </LineChart>

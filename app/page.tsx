@@ -1,6 +1,8 @@
 import { KPICard } from '@/components/dashboard/kpi-card';
 import { RevenueChart } from '@/components/dashboard/revenue-chart';
 import { CumulativeStoreChart } from '@/components/dashboard/cumulative-store-chart';
+import { DayOfWeekChartInteractive } from '@/components/dashboard/day-of-week-chart-interactive';
+import { RepActivityChart } from '@/components/dashboard/rep-activity-chart';
 import {
   getCurrentMTDSummary,
   getCurrentStorePerformance,
@@ -8,6 +10,7 @@ import {
   getDailyRevenueTrend,
   getCumulativeStoreRevenue,
   getNGARevenue,
+  getCompanyDayOfWeekSales,
   formatCurrency,
   formatPercent,
 } from '@/lib/api';
@@ -22,6 +25,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Metadata } from 'next';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,13 +36,14 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   // Fetch all data in parallel
-  const [summary, stores, reps, dailyTrend, cumulativeStoreData, ngaRevenue] = await Promise.all([
+  const [summary, stores, reps, dailyTrend, cumulativeStoreData, ngaRevenue, dayOfWeekData] = await Promise.all([
     getCurrentMTDSummary(),
     getCurrentStorePerformance(),
     getCurrentRepPerformance(),
     getDailyRevenueTrend(),
     getCumulativeStoreRevenue(),
     getNGARevenue(),
+    getCompanyDayOfWeekSales(),
   ]);
 
   // Calculate YoY change
@@ -121,6 +126,22 @@ export default async function DashboardPage() {
           </div>
         )}
 
+        {/* Day of Week Sales Chart */}
+        {dayOfWeekData.length > 0 && (
+          <div className="mb-8">
+            <DayOfWeekChartInteractive
+              initialData={dayOfWeekData}
+              title="Average Sales by Day of Week"
+              description="Company-wide average daily sales for each day of the week"
+            />
+          </div>
+        )}
+
+        {/* Sales Rep Activity Chart */}
+        <div className="mb-8">
+          <RepActivityChart />
+        </div>
+
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Store Performance Table */}
           <Card>
@@ -138,24 +159,31 @@ export default async function DashboardPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {stores.slice(0, 10).map((store) => (
-                    <TableRow key={store.store_name}>
-                      <TableCell className="font-medium">
-                        {store.store_name}
-                        {store.region && (
-                          <Badge
-                            variant="outline"
-                            className={`ml-2 text-xs ${
-                              store.region === 'East' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                              store.region === 'West' ? 'bg-green-50 text-green-700 border-green-200' :
-                              store.region === 'North' ? 'bg-purple-50 text-purple-700 border-purple-200' :
-                              'bg-gray-50 text-gray-700 border-gray-200'
-                            }`}
+                  {stores.slice(0, 10).map((store) => {
+                    const storeSlug = store.store_name.toLowerCase().replace(/\s+/g, '-');
+                    return (
+                      <TableRow key={store.store_name}>
+                        <TableCell className="font-medium">
+                          <Link
+                            href={`/stores/${storeSlug}`}
+                            className="text-primary hover:underline"
                           >
-                            {store.region}
-                          </Badge>
-                        )}
-                      </TableCell>
+                            {store.store_name}
+                          </Link>
+                          {store.region && (
+                            <Badge
+                              variant="outline"
+                              className={`ml-2 text-xs ${
+                                store.region === 'East' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                store.region === 'West' ? 'bg-green-50 text-green-700 border-green-200' :
+                                store.region === 'North' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                                'bg-gray-50 text-gray-700 border-gray-200'
+                              }`}
+                            >
+                              {store.region}
+                            </Badge>
+                          )}
+                        </TableCell>
                       <TableCell className="text-right font-mono text-gray-500">
                         {formatCurrency(store.store_goal)}
                       </TableCell>
@@ -174,7 +202,8 @@ export default async function DashboardPage() {
                         </span>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </CardContent>
@@ -232,6 +261,14 @@ export default async function DashboardPage() {
                   ))}
                 </TableBody>
               </Table>
+              <div className="mt-4 text-center">
+                <Link
+                  href="/sales-reps"
+                  className="text-sm font-medium text-primary hover:underline"
+                >
+                  View Full Leaderboard →
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>

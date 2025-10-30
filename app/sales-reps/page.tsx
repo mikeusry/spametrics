@@ -1,13 +1,6 @@
-import { getCurrentRepPerformance, formatCurrency, formatPercent } from '@/lib/api';
+import { getCurrentRepPerformance, getRepActivitySummary } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { SortableLeaderboard } from '@/components/sales-reps/sortable-leaderboard';
 import { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -18,7 +11,17 @@ export const metadata: Metadata = {
 };
 
 export default async function SalesRepsPage() {
-  const reps = await getCurrentRepPerformance();
+  // Get current month date range
+  const today = new Date();
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  const startDate = firstDay.toISOString().split('T')[0];
+  const endDate = today.toISOString().split('T')[0];
+
+  // Fetch performance and activity data in parallel
+  const [reps, activities] = await Promise.all([
+    getCurrentRepPerformance(),
+    getRepActivitySummary(startDate, endDate)
+  ]);
 
   return (
     <div className="min-h-screen">
@@ -34,68 +37,12 @@ export default async function SalesRepsPage() {
         <Card>
           <CardHeader>
             <CardTitle>MTD Performance</CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              Click column headers to sort • Click rep name to view details
+            </p>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">#</TableHead>
-                  <TableHead>Sales Rep</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead className="text-right">MTD Revenue</TableHead>
-                  <TableHead className="text-right">Goal</TableHead>
-                  <TableHead className="text-right">% to Goal</TableHead>
-                  <TableHead className="text-right">Variance</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {reps.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center text-gray-500 py-8">
-                      No sales rep data available
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  reps.map((rep, index) => (
-                    <TableRow key={rep.full_name}>
-                      <TableCell className="font-semibold text-gray-500">
-                        {index + 1}
-                      </TableCell>
-                      <TableCell className="font-medium">{rep.full_name}</TableCell>
-                      <TableCell className="text-gray-600">{rep.role}</TableCell>
-                      <TableCell className="text-right font-mono">
-                        {formatCurrency(rep.mtd_revenue)}
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-gray-500">
-                        {formatCurrency(rep.monthly_goal)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <span
-                          className={
-                            rep.percent_to_goal && rep.percent_to_goal >= 100
-                              ? 'text-green-600 font-semibold'
-                              : 'text-gray-900'
-                          }
-                        >
-                          {formatPercent(rep.percent_to_goal)}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right font-mono">
-                        <span
-                          className={
-                            rep.variance_to_goal && rep.variance_to_goal >= 0
-                              ? 'text-green-600'
-                              : 'text-red-600'
-                          }
-                        >
-                          {formatCurrency(rep.variance_to_goal)}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+            <SortableLeaderboard reps={reps} activities={activities} />
           </CardContent>
         </Card>
       </main>
