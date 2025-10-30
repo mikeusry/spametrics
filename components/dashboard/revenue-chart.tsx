@@ -35,21 +35,23 @@ export function RevenueChart({ data }: RevenueChartProps) {
   return (
     <Card className="col-span-full">
       <CardHeader>
-        <CardTitle>Daily Revenue Trend</CardTitle>
+        <CardTitle className="text-lg sm:text-xl">Daily Revenue Trend</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData}>
+      <CardContent className="px-2 sm:px-6">
+        <ResponsiveContainer width="100%" height={350}>
+          <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 11 }}
               stroke="#6b7280"
+              interval="preserveStartEnd"
             />
             <YAxis
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 11 }}
               stroke="#6b7280"
               tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+              width={45}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend />

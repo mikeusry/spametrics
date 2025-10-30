@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Home, Calendar, Users, Store, ChevronDown, Target, Edit, LogOut } from 'lucide-react';
+import { Home, Calendar, Users, Store, ChevronDown, Target, Edit, LogOut, Menu, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -39,6 +39,24 @@ export function Sidebar() {
   const router = useRouter();
   const [storesOpen, setStoresOpen] = useState(pathname.startsWith('/stores'));
   const [loggingOut, setLoggingOut] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
 
   async function handleLogout() {
     if (loggingOut) return;
@@ -55,7 +73,34 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-border shadow-sm">
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+        aria-label="Toggle menu"
+      >
+        {mobileMenuOpen ? (
+          <X className="h-6 w-6 text-gray-900" />
+        ) : (
+          <Menu className="h-6 w-6 text-gray-900" />
+        )}
+      </button>
+
+      {/* Mobile Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={cn(
+        "fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-border shadow-sm transition-transform duration-300 ease-in-out",
+        "lg:translate-x-0",
+        mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
       <div className="h-full flex flex-col overflow-hidden">
         {/* Brand Header */}
         <div className="px-6 py-5 border-b border-border bg-primary flex-shrink-0">
@@ -211,5 +256,6 @@ export function Sidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }

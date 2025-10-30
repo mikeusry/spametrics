@@ -17,6 +17,18 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Spametrics - Georgia Spa Company",
   description: "Sales and Marketing Dashboard for Georgia Spa Company",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+  },
+  themeColor: "#3b82f6",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Spametrics",
+  },
 };
 
 export default function RootLayout({
@@ -31,7 +43,7 @@ export default function RootLayout({
       >
         <div className="flex min-h-screen bg-gray-50">
           <Sidebar />
-          <main className="flex-1 ml-64 p-6">
+          <main className="flex-1 lg:ml-64 p-4 sm:p-6 pt-16 lg:pt-6">
             {children}
           </main>
         </div>

@@ -131,4 +131,50 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Mobile optimizations */
+  @media (max-width: 640px) {
+    /* Smoother scrolling on mobile */
+    html {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      scroll-behavior: smooth;
+    }
+
+    /* Better touch targets */
+    button, a, [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
+  /* Landscape mode optimizations for mobile */
+  @media (max-height: 600px) and (orientation: landscape) {
+    /* Reduce vertical spacing in landscape */
+    .space-y-6 > * + * {
+      margin-top: 1rem !important;
+    }
+
+    .space-y-4 > * + * {
+      margin-top: 0.75rem !important;
+    }
+
+    /* Compact card headers in landscape */
+    .card-header {
+      padding-top: 0.75rem !important;
+      padding-bottom: 0.5rem !important;
+    }
+
+    /* Smaller charts in landscape */
+    .recharts-wrapper {
+      max-height: 250px !important;
+    }
+  }
+
+  /* Safe area insets for iPhone notch/home indicator */
+  @supports (padding: env(safe-area-inset-bottom)) {
+    body {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
 }

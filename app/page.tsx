@@ -64,14 +64,14 @@ export default async function DashboardPage() {
   return (
     <div>
       {/* Page Header */}
-      <div className="bg-white border-b border-gray-200 mb-6">
-        <div className="flex items-center justify-between">
+      <div className="bg-white border-b border-gray-200 mb-4 sm:mb-6 -mx-4 sm:-mx-6 px-4 sm:px-6 py-4 sm:py-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-sm text-gray-600 mt-1">Overview of company performance</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-xs sm:text-sm text-gray-600 mt-1">Overview of company performance</p>
           </div>
-          <div className="text-right">
-            <p className="text-sm font-medium text-gray-900">
+          <div className="sm:text-right">
+            <p className="text-xs sm:text-sm font-medium text-gray-900">
               {new Date().toLocaleDateString('en-US', {
                 weekday: 'long',
                 year: 'numeric',
@@ -86,7 +86,7 @@ export default async function DashboardPage() {
         </div>
       </div>
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 mb-6 sm:gap-6 sm:mb-8 sm:grid-cols-2 lg:grid-cols-3">
           <KPICard
             title="MTD Revenue"
             value={formatCurrency(summary?.mtd_revenue)}
@@ -114,21 +114,21 @@ export default async function DashboardPage() {
 
         {/* Revenue Trend Chart */}
         {dailyTrend.length > 0 && (
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <RevenueChart data={dailyTrend} />
           </div>
         )}
 
         {/* Cumulative Store Revenue Chart */}
         {cumulativeStoreData.length > 0 && (
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <CumulativeStoreChart data={cumulativeStoreData} />
           </div>
         )}
 
         {/* Day of Week Sales Chart */}
         {dayOfWeekData.length > 0 && (
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <DayOfWeekChartInteractive
               initialData={dayOfWeekData}
               title="Average Sales by Day of Week"
@@ -138,18 +138,20 @@ export default async function DashboardPage() {
         )}
 
         {/* Sales Rep Activity Chart */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <RepActivityChart />
         </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-2">
           {/* Store Performance Table */}
           <Card>
             <CardHeader>
-              <CardTitle>Store Performance</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">Store Performance</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
+            <CardContent className="p-0 sm:p-6">
+              <div className="overflow-x-auto -mx-6 sm:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Store</TableHead>
@@ -184,13 +186,13 @@ export default async function DashboardPage() {
                             </Badge>
                           )}
                         </TableCell>
-                      <TableCell className="text-right font-mono text-gray-500">
+                      <TableCell className="text-right font-mono text-gray-500 text-xs sm:text-sm whitespace-nowrap">
                         {formatCurrency(store.store_goal)}
                       </TableCell>
-                      <TableCell className="text-right font-mono">
+                      <TableCell className="text-right font-mono text-xs sm:text-sm whitespace-nowrap">
                         {formatCurrency(store.mtd_revenue)}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right whitespace-nowrap">
                         <span
                           className={
                             store.percent_to_goal && store.percent_to_goal >= 100
@@ -206,16 +208,20 @@ export default async function DashboardPage() {
                   })}
                 </TableBody>
               </Table>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
           {/* Sales Rep Leaderboard */}
           <Card>
             <CardHeader>
-              <CardTitle>Sales Rep Leaderboard</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">Sales Rep Leaderboard</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
+            <CardContent className="p-0 sm:p-6">
+              <div className="overflow-x-auto -mx-6 sm:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Rank</TableHead>
@@ -242,11 +248,11 @@ export default async function DashboardPage() {
                           {index + 1}
                         </div>
                       </TableCell>
-                      <TableCell className="font-medium">{rep.full_name}</TableCell>
-                      <TableCell className="text-right font-mono">
+                      <TableCell className="font-medium text-sm sm:text-base whitespace-nowrap">{rep.full_name}</TableCell>
+                      <TableCell className="text-right font-mono text-xs sm:text-sm whitespace-nowrap">
                         {formatCurrency(rep.mtd_revenue)}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right whitespace-nowrap">
                         <span
                           className={
                             rep.percent_to_goal && rep.percent_to_goal >= 100
@@ -261,10 +267,12 @@ export default async function DashboardPage() {
                   ))}
                 </TableBody>
               </Table>
-              <div className="mt-4 text-center">
+                </div>
+              </div>
+              <div className="mt-4 text-center px-6 sm:px-0 pb-2 sm:pb-0">
                 <Link
                   href="/sales-reps"
-                  className="text-sm font-medium text-primary hover:underline"
+                  className="text-sm font-medium text-primary hover:underline inline-block py-2"
                 >
                   View Full Leaderboard →
                 </Link>

@@ -168,33 +168,33 @@ export default async function RepDetailPage({ params }: PageProps) {
   return (
     <div className="min-h-screen">
       {/* Page Header */}
-      <div className="sticky top-0 z-30 bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center gap-4">
+      <div className="sticky top-0 z-30 bg-white border-b border-gray-200 -mx-4 sm:-mx-6 px-4 sm:px-6 py-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <Link
             href="/sales-reps"
-            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors min-h-[44px]"
           >
             <ChevronLeft className="w-5 h-5" />
-            <span className="text-sm font-medium">Back to Leaderboard</span>
+            <span className="text-xs sm:text-sm font-medium">Back</span>
           </Link>
         </div>
-        <div className="mt-4">
-          <h1 className="text-3xl font-bold text-gray-900">{repPerformance.full_name}</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            {repPerformance.role} • MTD Performance & Activity Tracking
+        <div className="mt-3 sm:mt-4">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">{repPerformance.full_name}</h1>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1">
+            {repPerformance.role} • MTD Performance
           </p>
         </div>
       </div>
 
-      <main className="p-6 space-y-6">
+      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 lg:grid-cols-4">
           <Card>
-            <CardHeader className="pb-3">
-              <CardDescription>MTD Revenue</CardDescription>
-              <CardTitle className="text-2xl">{formatCurrency(repPerformance.mtd_revenue)}</CardTitle>
+            <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+              <CardDescription className="text-xs">MTD Revenue</CardDescription>
+              <CardTitle className="text-lg sm:text-xl lg:text-2xl">{formatCurrency(repPerformance.mtd_revenue)}</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
               <div className="text-xs text-muted-foreground">
                 Goal: {formatCurrency(repPerformance.monthly_goal)}
               </div>
@@ -202,9 +202,9 @@ export default async function RepDetailPage({ params }: PageProps) {
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <CardDescription>% to Goal</CardDescription>
-              <CardTitle className={`text-2xl ${
+            <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+              <CardDescription className="text-xs">% to Goal</CardDescription>
+              <CardTitle className={`text-lg sm:text-xl lg:text-2xl ${
                 repPerformance.percent_to_goal && repPerformance.percent_to_goal >= 100
                   ? 'text-green-600'
                   : 'text-gray-900'
@@ -212,31 +212,31 @@ export default async function RepDetailPage({ params }: PageProps) {
                 {formatPercent(repPerformance.percent_to_goal)}
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-xs text-muted-foreground">
-                Variance: {formatCurrency(repPerformance.variance_to_goal)}
+            <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+              <div className="text-xs text-muted-foreground truncate">
+                {formatCurrency(repPerformance.variance_to_goal)}
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <CardDescription>Total Activities</CardDescription>
-              <CardTitle className="text-2xl text-purple-600">
+            <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+              <CardDescription className="text-xs">Activities</CardDescription>
+              <CardTitle className="text-lg sm:text-xl lg:text-2xl text-purple-600">
                 {activitySummary?.total_activities || 0}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
               <div className="text-xs text-muted-foreground">
-                Avg per day: {avgActivitiesPerDay.toFixed(1)}
+                {avgActivitiesPerDay.toFixed(1)}/day
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <CardDescription>Pacing</CardDescription>
-              <CardTitle className={`text-2xl ${
+            <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+              <CardDescription className="text-xs">Pacing</CardDescription>
+              <CardTitle className={`text-lg sm:text-xl lg:text-2xl ${
                 repPerformance.pacing_percent && repPerformance.pacing_percent >= 100
                   ? 'text-green-600'
                   : repPerformance.pacing_percent && repPerformance.pacing_percent >= 80
@@ -248,9 +248,9 @@ export default async function RepDetailPage({ params }: PageProps) {
                   : 'N/A'}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
               <div className="text-xs text-muted-foreground">
-                {repPerformance.days_remaining} days remaining
+                {repPerformance.days_remaining}d left
               </div>
             </CardContent>
           </Card>
@@ -260,8 +260,8 @@ export default async function RepDetailPage({ params }: PageProps) {
         {activitySummary && (
           <Card>
             <CardHeader>
-              <CardTitle>MTD Activity Breakdown</CardTitle>
-              <CardDescription>All activities tracked from HubSpot this month</CardDescription>
+              <CardTitle className="text-lg sm:text-xl">MTD Activity Breakdown</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">All activities from HubSpot this month</CardDescription>
             </CardHeader>
             <CardContent>
               <InlineActivityChart
@@ -278,93 +278,97 @@ export default async function RepDetailPage({ params }: PageProps) {
         {/* Daily Activity Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Daily Activity Log</CardTitle>
-            <CardDescription>Day-by-day breakdown of activities (most recent first)</CardDescription>
+            <CardTitle className="text-lg sm:text-xl">Daily Activity Log</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Day-by-day activity breakdown</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 sm:p-6">
             {dailyData.length === 0 ? (
-              <div className="text-center text-gray-500 py-8">
+              <div className="text-center text-gray-500 py-8 px-6">
                 No activity data available for this month
               </div>
             ) : (
-              <Table>
+              <div className="overflow-x-auto">
+                <div className="inline-block min-w-full align-middle">
+                  <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Calls</TableHead>
-                    <TableHead className="text-right">Emails</TableHead>
-                    <TableHead className="text-right">Meetings</TableHead>
-                    <TableHead className="text-right">Notes</TableHead>
-                    <TableHead className="text-right">SMS</TableHead>
-                    <TableHead className="text-right font-semibold">Total</TableHead>
-                    <TableHead className="text-right font-semibold bg-green-50">Sales</TableHead>
+                    <TableHead className="sticky left-0 bg-white z-10 text-xs sm:text-sm">Date</TableHead>
+                    <TableHead className="text-right text-xs sm:text-sm whitespace-nowrap">Calls</TableHead>
+                    <TableHead className="text-right text-xs sm:text-sm whitespace-nowrap">Emails</TableHead>
+                    <TableHead className="text-right text-xs sm:text-sm whitespace-nowrap">Meetings</TableHead>
+                    <TableHead className="text-right text-xs sm:text-sm whitespace-nowrap">Notes</TableHead>
+                    <TableHead className="text-right text-xs sm:text-sm whitespace-nowrap">SMS</TableHead>
+                    <TableHead className="text-right text-xs sm:text-sm font-semibold whitespace-nowrap">Total</TableHead>
+                    <TableHead className="text-right text-xs sm:text-sm font-semibold bg-green-50 whitespace-nowrap">Sales</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {dailyData.map((day) => (
                     <TableRow key={day.date_id}>
-                      <TableCell className="font-medium">
+                      <TableCell className="font-medium sticky left-0 bg-white z-10 text-xs sm:text-sm whitespace-nowrap">
                         {new Date(day.date_id).toLocaleDateString('en-US', {
                           weekday: 'short',
                           month: 'short',
                           day: 'numeric'
                         })}
                         {day.date_id === mostActiveDay?.date_id && (
-                          <span className="ml-2 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
+                          <span className="ml-1 sm:ml-2 text-xs bg-purple-100 text-purple-700 px-1 sm:px-2 py-0.5 sm:py-1 rounded-full hidden sm:inline">
                             Most Active
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="text-right font-mono text-purple-700">
+                      <TableCell className="text-right font-mono text-purple-700 text-xs sm:text-sm whitespace-nowrap">
                         {day.calls}
                       </TableCell>
-                      <TableCell className="text-right font-mono text-blue-700">
+                      <TableCell className="text-right font-mono text-blue-700 text-xs sm:text-sm whitespace-nowrap">
                         {day.emails}
                       </TableCell>
-                      <TableCell className="text-right font-mono text-green-700">
+                      <TableCell className="text-right font-mono text-green-700 text-xs sm:text-sm whitespace-nowrap">
                         {day.meetings}
                       </TableCell>
-                      <TableCell className="text-right font-mono text-orange-700">
+                      <TableCell className="text-right font-mono text-orange-700 text-xs sm:text-sm whitespace-nowrap">
                         {day.notes}
                       </TableCell>
-                      <TableCell className="text-right font-mono text-pink-700">
+                      <TableCell className="text-right font-mono text-pink-700 text-xs sm:text-sm whitespace-nowrap">
                         {day.sms}
                       </TableCell>
-                      <TableCell className="text-right font-mono font-semibold">
+                      <TableCell className="text-right font-mono font-semibold text-xs sm:text-sm whitespace-nowrap">
                         {day.total}
                       </TableCell>
-                      <TableCell className="text-right font-mono font-semibold bg-green-50">
+                      <TableCell className="text-right font-mono font-semibold bg-green-50 text-xs sm:text-sm whitespace-nowrap">
                         {formatCurrency(day.sales)}
                       </TableCell>
                     </TableRow>
                   ))}
                   {/* Totals Row */}
                   <TableRow className="bg-gray-100 font-bold border-t-2">
-                    <TableCell className="font-bold">TOTALS</TableCell>
-                    <TableCell className="text-right font-mono text-purple-700">
+                    <TableCell className="font-bold sticky left-0 bg-gray-100 z-10 text-xs sm:text-sm">TOTALS</TableCell>
+                    <TableCell className="text-right font-mono text-purple-700 text-xs sm:text-sm">
                       {totals.calls}
                     </TableCell>
-                    <TableCell className="text-right font-mono text-blue-700">
+                    <TableCell className="text-right font-mono text-blue-700 text-xs sm:text-sm">
                       {totals.emails}
                     </TableCell>
-                    <TableCell className="text-right font-mono text-green-700">
+                    <TableCell className="text-right font-mono text-green-700 text-xs sm:text-sm">
                       {totals.meetings}
                     </TableCell>
-                    <TableCell className="text-right font-mono text-orange-700">
+                    <TableCell className="text-right font-mono text-orange-700 text-xs sm:text-sm">
                       {totals.notes}
                     </TableCell>
-                    <TableCell className="text-right font-mono text-pink-700">
+                    <TableCell className="text-right font-mono text-pink-700 text-xs sm:text-sm">
                       {totals.sms}
                     </TableCell>
-                    <TableCell className="text-right font-mono font-semibold">
+                    <TableCell className="text-right font-mono font-semibold text-xs sm:text-sm">
                       {totals.total}
                     </TableCell>
-                    <TableCell className="text-right font-mono font-semibold bg-green-50">
+                    <TableCell className="text-right font-mono font-semibold bg-green-50 text-xs sm:text-sm">
                       {formatCurrency(totals.sales)}
                     </TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
+                </div>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -373,11 +377,11 @@ export default async function RepDetailPage({ params }: PageProps) {
         {dailyData.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Activity Insights</CardTitle>
-              <CardDescription>Key metrics and patterns</CardDescription>
+              <CardTitle className="text-lg sm:text-xl">Activity Insights</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Key metrics and patterns</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                 <div>
                   <div className="text-sm font-medium text-muted-foreground mb-2">
                     Most Active Day
