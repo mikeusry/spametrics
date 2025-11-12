@@ -921,14 +921,13 @@ export async function getRepActivities(startDate: string, endDate: string): Prom
  */
 export async function getRepActivitySummary(startDate: string, endDate: string): Promise<RepActivitySummary[]> {
   const { data, error } = await supabase
-    .from('daily_rep_activities')
+    .from('sales_rep_activities')
     .select(`
       rep_id,
       calls,
       emails,
       meetings,
       notes,
-      tasks,
       sms,
       total_activities,
       sales_reps!inner(full_name)
@@ -964,7 +963,7 @@ export async function getRepActivitySummary(startDate: string, endDate: string):
     summary.total_emails += row.emails || 0;
     summary.total_meetings += row.meetings || 0;
     summary.total_notes += row.notes || 0;
-    summary.total_tasks += row.tasks || 0;
+    summary.total_tasks += 0; // No tasks column in our table
     summary.total_sms += row.sms || 0;
     summary.total_activities += row.total_activities || 0;
   });
