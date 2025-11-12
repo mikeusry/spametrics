@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllHubSpotActivities, aggregateActivitiesByDateAndOwner } from '@/lib/hubspot';
-import { createClient } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // 60 seconds timeout for Vercel hobby plan
@@ -69,9 +69,6 @@ export async function POST(request: NextRequest) {
     // Aggregate by date and owner
     const summaries = aggregateActivitiesByDateAndOwner(activities);
     console.log(`[HubSpot Sync] Aggregated into ${summaries.length} daily summaries`);
-
-    // Initialize Supabase client
-    const supabase = createClient();
 
     // Get sales rep mappings (HubSpot owner ID to internal rep ID)
     const { data: salesReps, error: repsError } = await supabase
