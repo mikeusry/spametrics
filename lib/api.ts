@@ -77,20 +77,22 @@ export async function getCurrentStorePerformance(): Promise<StorePerformance[]> 
  * Get all sales rep performance for current month
  */
 export async function getCurrentRepPerformance(): Promise<RepPerformance[]> {
-  // Get the latest date in the system
+  // Use actual current month, not latest data in system
+  const today = new Date();
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  const firstDayStr = firstDay.toISOString().split('T')[0];
+
+  // Get latest date for the current month
   const { data: latestDate } = await supabase
     .from('daily_summary_metrics')
     .select('date_id')
+    .gte('date_id', firstDayStr)
     .order('date_id', { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
+  // If no data for current month, return empty array
   if (!latestDate) return [];
-
-  // Get first day of that month
-  const date = new Date(latestDate.date_id);
-  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-  const firstDayStr = firstDay.toISOString().split('T')[0];
 
   // Query sales rep performance for that month
   const { data, error } = await supabase
@@ -122,8 +124,8 @@ export async function getCurrentRepPerformance(): Promise<RepPerformance[]> {
     goalsMap.set(goal.rep_id, goal.monthly_goal || 0);
   });
 
-  // Calculate pacing metrics
-  const currentDate = new Date(latestDate.date_id);
+  // Calculate pacing metrics using actual current date
+  const currentDate = today;
   const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
   const totalDaysInMonth = lastDayOfMonth.getDate();
   const daysPassed = currentDate.getDate();

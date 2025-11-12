@@ -23,6 +23,21 @@ export default async function SalesRepsPage() {
     getRepActivitySummary(startDate, endDate)
   ]);
 
+  // If no revenue data, create rep records from activities with zero revenue
+  let displayReps = reps;
+  if (reps.length === 0 && activities.length > 0) {
+    displayReps = activities.map(activity => ({
+      full_name: activity.rep_name,
+      role: 'Sales Pro',
+      mtd_revenue: 0,
+      monthly_goal: 0,
+      variance_to_goal: 0,
+      percent_to_goal: 0,
+      pacing_percent: 0,
+      days_remaining: new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate() - today.getDate()
+    }));
+  }
+
   return (
     <div className="min-h-screen">
       {/* Page Header */}
@@ -42,7 +57,7 @@ export default async function SalesRepsPage() {
             </p>
           </CardHeader>
           <CardContent>
-            <SortableLeaderboard reps={reps} activities={activities} />
+            <SortableLeaderboard reps={displayReps} activities={activities} />
           </CardContent>
         </Card>
       </main>
